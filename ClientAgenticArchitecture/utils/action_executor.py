@@ -1,4 +1,3 @@
-# /utils/action_executor.py
 """
 Utility functions for executing actions from parsed data.
 """

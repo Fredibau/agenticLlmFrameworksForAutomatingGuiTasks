@@ -1,5 +1,3 @@
-# worker.py
-
 import logging
 import time
 import base64

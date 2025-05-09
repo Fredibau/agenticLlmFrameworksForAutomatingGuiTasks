@@ -1,4 +1,3 @@
-# /utils/screenshot.py
 """
 Utility functions for capturing screenshots and handling screen detection.
 """
