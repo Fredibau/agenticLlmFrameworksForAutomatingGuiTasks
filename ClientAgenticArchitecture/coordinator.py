@@ -116,11 +116,12 @@ class Coordinator:
         task_halted_by_max_actions = False
         overall_actions_performed_count = 0 
 
-        # --- Initial Plan ---
+        # Create initial plan using the Planner
         self.logger.info("Requesting initial plan from Planner...")
         initial_screenshot_bytes = self._get_screenshot_bytes_for_planner()
         plan, plan_meta = self.planner.get_plan(overall_goal=overall_task_description, current_screenshot_bytes=initial_screenshot_bytes, history_context=None)
 
+        # Check if the plan is valid and not empty
         if not plan:
             self.logger.error("Planner failed to provide an initial plan.")
             reason = "Planner failed to provide an initial plan."
@@ -137,6 +138,7 @@ class Coordinator:
         self.current_plan = plan
         self.logger.info(f"Initial plan received with {len(self.current_plan)} sub-tasks.")
 
+        #Store the initial plan in the archive
         if self.current_plan:
             self.all_plans_archive.append({
                 "plan_segment_number": 1,
@@ -149,10 +151,11 @@ class Coordinator:
 
         self._reset_replan_counters_and_history() 
 
-        # --- Main Execution Loop ---
+        # Main Execution Loop
         final_success: bool = False
         final_reason: str = "Task execution started but did not reach a defined end state."
 
+        #run the main execution loop until all sub-tasks are completed or max actions reached
         while self.current_plan and self.current_sub_task_index < len(self.current_plan):
             self.logger.debug(f"OUTER LOOP START: overall_actions: {overall_actions_performed_count}/{self.max_overall_actions_performed}, current_sub_task_index: {self.current_sub_task_index}")
             if overall_actions_performed_count >= self.max_overall_actions_performed:
@@ -170,6 +173,7 @@ class Coordinator:
             sub_task_requested_call_user = False
             actions_performed_in_last_subtask_block: Optional[List[Dict]] = []
 
+            # Execute the sub-task using the Worker 
             for attempt_num in range(1, self.max_sub_task_attempts_by_coordinator + 1):
                 self.logger.debug(f"INNER LOOP ATTEMPT {attempt_num}: overall_actions: {overall_actions_performed_count}/{self.max_overall_actions_performed}")
                 if overall_actions_performed_count >= self.max_overall_actions_performed:
@@ -189,6 +193,7 @@ class Coordinator:
                 worker_result = self.worker.run_sub_task(sub_task_description=current_sub_task_desc)
                 actions_performed_in_last_subtask_block = worker_result.get("actions_performed_records", [])
 
+                # Process actions performed in the last sub-task block by the Worker
                 initial_action_count_for_batch = overall_actions_performed_count
                 if actions_performed_in_last_subtask_block:
                     for action_record in actions_performed_in_last_subtask_block:
@@ -209,6 +214,7 @@ class Coordinator:
                     actions_processed_this_call = overall_actions_performed_count - initial_action_count_for_batch
                     self.logger.info(f"Processed {actions_processed_this_call} actions from worker call. Updated overall_actions_performed_count: {overall_actions_performed_count}")
 
+                # Store the actions and thoughts from the worker
                 worker_thoughts_summary = worker_result.get("thought_process_summary", [])
                 if worker_thoughts_summary:
                     structured_thoughts = []
@@ -222,6 +228,7 @@ class Coordinator:
                     self.all_worker_thoughts.extend(structured_thoughts)
                     self.logger.debug(f"Added {len(structured_thoughts)} worker thoughts for sub-task {current_sub_task_idx_for_record+1}, attempt {attempt_num}.")
 
+                # Evaluate the worker's result
                 if task_halted_by_max_actions: break
 
                 if worker_result.get("signaled_finish"):
@@ -244,6 +251,7 @@ class Coordinator:
                         self.logger.error(f"Sub-task '{current_sub_task_desc}' FAILED after {self.max_sub_task_attempts_by_coordinator} Coordinator attempts.")
                         self._add_to_current_plan_execution_history(current_sub_task_desc, "failure", reason=f"Max Coordinator retries. Last worker reason: {error_msg}", actions_performed_records=actions_performed_in_last_subtask_block)
 
+            # Afer all attempts for the current sub-task, check if we need to re-plan or continue
             if task_halted_by_max_actions:
                 self.logger.info("Task halted by max actions during sub-task attempts. Skipping further processing.")
                 break
@@ -273,6 +281,7 @@ class Coordinator:
                     final_success = False
                     break
 
+            # Replanning Logic 
             if needs_to_replan_now:
                 self.logger.info(f"Re-planning condition met. Current sub-task was '{current_sub_task_desc}'. Proceeding with re-planning attempt.")
                 self.logger.debug(f"REPLAN CHECK (pre-replan action count): overall_actions: {overall_actions_performed_count}/{self.max_overall_actions_performed}")
@@ -297,6 +306,7 @@ class Coordinator:
                     failed_desc_for_history = current_sub_task_desc
                     last_successfully_completed_idx = self.current_sub_task_index - 1
 
+                # Store the current plan execution history for the planner API
                 history_for_planner_api = {
                     "previous_plan": list(self.current_plan) if self.current_plan else [], 
                     "completed_up_to_index": last_successfully_completed_idx,
@@ -310,6 +320,7 @@ class Coordinator:
                     history_context=history_for_planner_api
                 )
 
+                # Handle the new plan response
                 if new_plan:
                     self.logger.info(f"New plan received with {len(new_plan)} sub-tasks. Resetting plan-specific counters and state.")
                     self.current_plan = new_plan
@@ -348,8 +359,10 @@ class Coordinator:
                     self.logger.error(final_reason)
                     final_success = False
                     break
-        # --- End of Main Execution (outer while) Loop ---
 
+        #Start the next iteration of the outer loop to process the new plan
+
+        # End of the main execution loop
         if not task_halted_by_max_actions and final_reason == "Task execution started but did not reach a defined end state.":
             if self.current_plan and self.current_sub_task_index >= len(self.current_plan):
                 final_reason = "All sub-tasks in the final plan completed successfully."

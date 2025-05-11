@@ -131,6 +131,7 @@ class Planner:
                 self.logger.debug(f"Step {idx+1}: {item}")
         return plan_items
 
+    # Main method to get a plan from the LLM
     def get_plan(
         self,
         overall_goal: str,
@@ -138,6 +139,7 @@ class Planner:
         history_context: Optional[Dict] = None  
     ) -> Tuple[Optional[List[str]], Optional[Dict[str, Any]]]:
         
+        # Create the text prompt for the LLM
         text_prompt_part = self._construct_text_prompt_parts(
             overall_goal, history_context
         )
@@ -150,6 +152,7 @@ class Planner:
         messages_content_list = []
         messages_content_list.append({"type": "text", "text": text_prompt_part})
 
+        # Prepare the screenshot for the LLM 
         if current_screenshot_bytes:
             try:
                 base64_image = base64.b64encode(current_screenshot_bytes).decode('utf-8')
@@ -165,6 +168,7 @@ class Planner:
         
         messages = [{"role": "user", "content": messages_content_list}] # type: ignore
 
+        # Send the request to the LLM
         try:
             api_response = self.llm_client.chat.completions.create(
                 model=self.model_name,
@@ -196,6 +200,7 @@ class Planner:
                 self.logger.error("Planner API call successful, but failed to parse a valid plan from the response.")
                 return None, metadata
 
+            # Return the created plan and metadata
             return plan, metadata
 
         except openai.APIError as e:

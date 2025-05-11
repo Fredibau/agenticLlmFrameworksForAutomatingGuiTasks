@@ -95,6 +95,7 @@ class Worker:
             self.logger.exception("Worker: Error during screenshot capture.")
             return None
 
+    # Main function to run a sub-task 
     def run_sub_task(
         self,
         sub_task_description: str,
@@ -112,6 +113,7 @@ class Worker:
         current_error = None
         final_screenshot_pil = None
 
+        # Capture initial screenshot
         current_screenshot_pil = self.capture_current_screenshot_pil()
         if not current_screenshot_pil:
             error_msg = "Worker: Failed to capture initial screenshot for sub-task."
@@ -134,12 +136,14 @@ class Worker:
                 "error": error_msg, "thought_process_summary": []
             }
 
+        # Create initial user prompt for UI-TARS VLM
         initial_user_prompt_text_for_vlm = WORKER_USER_PROMPT_TEMPLATE.format(
             action_space=self.action_space_prompt_segment,
             language=self.language,
             sub_task_instruction=sub_task_description
         )
 
+        # Main loop for sub-task execution running till max_vlm_steps or finish signal
         for step_num in range(1, max_vlm_steps + 1):
             self.logger.info(f"Worker: Sub-task step {step_num}/{max_vlm_steps}")
 
@@ -197,6 +201,7 @@ class Worker:
                 else:
                      self.logger.error("Max API retries reached for Worker UI-TARS call.")
 
+            # Process the response from UI-TARS
             if current_vlm_call_error or vlm_prediction_raw is None:
                 current_error = current_vlm_call_error or "UI-TARS did not return a prediction for sub-task."
                 self.logger.error(f"Halting sub-task due to UI-TARS call failure: {current_error}")
@@ -204,6 +209,7 @@ class Worker:
 
             sub_task_history_vlm_responses.append(vlm_prediction_raw)
 
+            # Parse the UI-TARS prediction using the parser.py
             parsed_actions_list, extracted_thought = parse_llm_output(vlm_prediction_raw, self.logger)
             if extracted_thought:
                 thought_text = f"Sub-task Step {step_num} Thought: {extracted_thought}"
@@ -222,6 +228,7 @@ class Worker:
                     })
                     break
 
+            # Execute actions based on parsed output
             action_executed_successfully_this_step = False
             for i_action, parsed_action_item in enumerate(parsed_actions_list):
                 action_type = parsed_action_item.get("type", "unknown")
@@ -259,6 +266,7 @@ class Worker:
                          current_error = f"Action {action_type} indicated script should not continue."
                     break 
             
+            # Check for signals to finish or call user and prepare for next step
             if signaled_finish or signaled_call_user or current_error:
                 break
 
@@ -280,6 +288,7 @@ class Worker:
                 self.logger.exception(current_error)
                 break
 
+        # Outside the Loop if task is not finished or called user and max steps reached
         if not current_error and not signaled_finish and not signaled_call_user and step_num >= max_vlm_steps:
             self.logger.warning(f"Sub-task '{sub_task_description}' reached max_vlm_steps ({max_vlm_steps}) without explicit finish/call_user signal.")
 

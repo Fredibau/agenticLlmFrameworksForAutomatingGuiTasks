@@ -31,7 +31,7 @@ UI_TARS_MODEL_NAME = os.getenv("UI_TARS_MODEL_NAME", "ui-tars")
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
-
+# Main entry point function for the task automation
 def run_automated_task(overall_goal_param: Optional[str] = None) -> Optional[Dict[str, Any]]: 
     """
     Initializes components and runs the automated task.
@@ -42,6 +42,7 @@ def run_automated_task(overall_goal_param: Optional[str] = None) -> Optional[Dic
     client_logger.info("Client application starting...")
     client_logger.info(f"Log level set to: {LOG_LEVEL}")
 
+    # Check for required environment variables
     if not PLANNER_API_KEY:
         client_logger.critical("Planner API Key (OPENAI_API_KEY) is not set. Exiting.")
         return None 
@@ -55,6 +56,7 @@ def run_automated_task(overall_goal_param: Optional[str] = None) -> Optional[Dic
 
     coordinator_kwargs: Dict[str, Any] = {}
 
+    # Initialize the Coordinator with the Planner and Worker components
     try:
         planner_instance = Planner(api_key=PLANNER_API_KEY, model_name=PLANNER_MODEL_NAME, logger=setup_logger("PlannerComponent", LOG_LEVEL))
         client_logger.info("Planner initialized.")
@@ -76,6 +78,7 @@ def run_automated_task(overall_goal_param: Optional[str] = None) -> Optional[Dic
         client_logger.critical(f"An unexpected error occurred during component initialization: {e}", exc_info=True)
         return None # Return None on critical setup failure
 
+    # Check for the overall goal parameter
     overall_goal: str
     if overall_goal_param:
         overall_goal = overall_goal_param
@@ -94,10 +97,11 @@ def run_automated_task(overall_goal_param: Optional[str] = None) -> Optional[Dic
             client_logger.error("Failed to get task via input (EOFError). Provide task directly or run interactively.")
             return None # Return None on input error
 
+    # Start task execution
     client_logger.info(f"Starting task execution for: '{overall_goal}'")
     result = None # Initialize result
+
     try:
-        # --- This call returns the results dictionary ---
         result = coordinator_instance.execute_overall_goal(overall_goal)
     except KeyboardInterrupt:
         client_logger.info("\nTask execution interrupted by user.")
@@ -110,6 +114,7 @@ def run_automated_task(overall_goal_param: Optional[str] = None) -> Optional[Dic
         client_logger.critical(f"A critical error occurred during task execution: {e}", exc_info=True)
         result = {"success": False, "reason": f"Critical runtime error: {e}"}
 
+    # Log the result of the task execution
     client_logger.info("\n--- Task Execution Summary (inside client) ---")
     if result:
         # Log summary details based on the result dictionary
@@ -118,7 +123,6 @@ def run_automated_task(overall_goal_param: Optional[str] = None) -> Optional[Dic
         actions_count = result.get('overall_actions_performed_count', 'N/A')
         max_actions_allowed_val = getattr(coordinator_instance, 'max_overall_actions_performed', 'N/A')
         client_logger.info(f"Total individual actions performed: {actions_count} (Configured Max: {max_actions_allowed_val})")
-        # You can add more summary logging here if needed
     else:
         client_logger.error("No result dictionary available after task execution attempt.")
         result = {"success": False, "reason": "Task execution failed to produce a result dictionary."} 
