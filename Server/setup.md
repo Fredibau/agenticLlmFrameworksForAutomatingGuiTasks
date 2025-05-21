@@ -41,37 +41,45 @@ This setup requires a CUDA-enabled environment. We recommend using the following
     ```
 
 2.  **Download the 7B model:**
-    Use the Hugging Face CLI to download the `bytedance-research/UI-TARS-7B-DPO` model. Choose a suitable local directory on your server.
+    Use the Hugging Face CLI to download the `ByteDance-Seed/UI-TARS-7B-DPO` model. Choose a suitable local directory on your server.
 
     ```bash
-    huggingface-cli download bytedance-research/UI-TARS-7B-DPO --local-dir /path/to/your/model
+    huggingface-cli download ByteDance-Seed/UI-TARS-7B-DPO  --local-dir /path/to/your/model
     ```
 
 3.  **Create the `preprocessor_config.json` file:**
-    Create this configuration file within the directory where you downloaded the model. Ensure the path matches your chosen model directory.
+    Change this configuration file within the directory where you downloaded the model. Ensure the path matches your chosen model directory.
 
     ```bash
     cat > /path/to/your/model/preprocessor_config.json << 'EOL'
     {
+      "do_convert_rgb": true,
       "do_normalize": true,
+      "do_rescale": true,
       "do_resize": true,
-      "feature_extractor_type": "Qwen2VLImageProcessor",
       "image_mean": [
         0.48145466,
         0.4578275,
         0.40821073
       ],
+      "image_processor_type": "Qwen2VLImageProcessor",
       "image_std": [
         0.26862954,
         0.26130258,
         0.27577711
       ],
+      "max_pixels": 2116800,
+      "merge_size": 2,
+      "min_pixels": 3136,
+      "patch_size": 14,
       "processor_class": "Qwen2VLProcessor",
+      "resample": 3,
+      "rescale_factor": 0.00392156862745098,
       "size": {
         "shortest_edge": 1080,
         "longest_edge": 1920
       },
-      "do_center_crop": true
+      "temporal_patch_size": 2
     }
     EOL
     ```

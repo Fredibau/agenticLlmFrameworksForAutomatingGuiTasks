@@ -1,0 +1,1 @@
+For **installation and guides**, visit the [OSWorld GitHub repository](https://github.com/xlang-ai/OSWorld/tree/main).

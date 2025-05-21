@@ -1,3 +1,27 @@
 .env
 __pycache__/
 *.py[cod]
+
+*.mp4
+*.png
+
+# vm info
+.vms
+/vm_data
+docker_vm_data
+vmware_vm_data
+.vmware*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+*.log
+
+# Ignore cache directories
+cache/

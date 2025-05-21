@@ -1,0 +1,32 @@
+{
+  "chrome": [
+    "bb5e4c0d-f964-439c-97b6-bdb9747de3f4"
+  ],
+  "gimp": [
+    "7a4deb26-d57d-4ea9-9a73-630f66a7b568"
+  ],
+  "libreoffice_calc": [
+    "abed40dc-063f-4598-8ba5-9fe749c0615d"
+  ],
+  "libreoffice_impress": [
+    "550ce7e7-747b-495f-b122-acdc4d0b8e54"
+  ],
+  "libreoffice_writer": [
+    "0a0faba3-5580-44df-965d-f562a99b291c"
+  ],
+  "multi_apps": [
+    "8e116af7-7db7-4e35-a68b-b0939c066c78"
+  ],
+  "os": [
+    "5812b315-e7bd-4265-b51f-863c02174c28"
+  ],
+  "thunderbird": [
+    "15c3b339-88f7-4a86-ab16-e71c58dcb01e"
+  ],
+  "vlc": [
+    "8f080098-ddb1-424c-b438-4e96e5e4786e"
+  ],
+  "vs_code": [
+    "276cc624-87ea-4f08-ab93-f770e3790175"
+  ]
+}
