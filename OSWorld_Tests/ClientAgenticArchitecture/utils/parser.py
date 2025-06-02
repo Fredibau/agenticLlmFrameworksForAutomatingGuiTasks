@@ -1,6 +1,4 @@
-# mm_agents/uitars_agent.py
-
-import ast # Used for robust string literal parsing (e.g., quoted strings)
+import ast 
 import base64
 import logging
 import re
@@ -9,7 +7,7 @@ from typing import Dict, List, Optional, Tuple, Any
 import time
 
 from PIL import Image
-from openai import OpenAI # Specifically import OpenAI for the client
+from openai import OpenAI 
 
 logger = logging.getLogger("desktopenv.agent.uitars_agent")
 
@@ -17,10 +15,8 @@ logger = logging.getLogger("desktopenv.agent.uitars_agent")
 FINISH_WORD = "finished"
 WAIT_WORD = "wait"
 CALL_USER = "call_user"
-ENV_FAIL_WORD = "error_env" # This is used by the agent logic
+ENV_FAIL_WORD = "error_env" 
 
-# --- New Parser Functions (Provided by User) ---
-# Note: The constants FINISH_WORD, WAIT_WORD, CALL_USER are defined above globally.
 
 def parse_value_string(value_string: str, logger: logging.Logger = None) -> Any:
     """
@@ -123,7 +119,6 @@ def parse_single_action(action_str: str, logger: logging.Logger = None) -> Optio
             # Check against globally defined constants
             if action_type_raw_simple in [FINISH_WORD.lower(), WAIT_WORD.lower(), CALL_USER.lower()]:
                 if logger: logger.debug(f"Matched simple action word: {action_type_raw_simple}")
-                # Return type consistent with global constants' casing if applicable
                 act_type_to_return = action_type_raw_simple
                 if action_type_raw_simple == FINISH_WORD.lower(): act_type_to_return = FINISH_WORD
                 elif action_type_raw_simple == WAIT_WORD.lower(): act_type_to_return = WAIT_WORD
@@ -225,7 +220,6 @@ def parse_single_action(action_str: str, logger: logging.Logger = None) -> Optio
     if action_type == FINISH_WORD.lower(): action_type_to_set = FINISH_WORD
     elif action_type == WAIT_WORD.lower(): action_type_to_set = WAIT_WORD
     elif action_type == CALL_USER.lower(): action_type_to_set = CALL_USER
-    # ENV_FAIL_WORD is not in the new parser's simple list, so it needs to be action_type_raw.lower()
     # The agent logic downstream will handle its specific string value.
     else: action_type_to_set = action_type 
 
