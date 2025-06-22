@@ -22,4 +22,4 @@ This system distributes the cognitive load between a high-level planner and a lo
 * **Worker (Executor):** `UI-TARS-7B-DPO` receives one low-level instruction at a time from the manager and is responsible for the direct interaction with the GUI (e.g., clicks, typing).
 
 *Figure 1: Hierarchical Manager-Worker Architecture*
-![Hierarchical Manager-Worker Architecture](agenticLlmFrameworksForAutomatingGuiTasks/resources/ExecutionFlowAgenticArchitecture.png)
+![Hierarchical Manager-Worker Architecture](resources/ExecutionFlowAgenticArchitecture.png)
