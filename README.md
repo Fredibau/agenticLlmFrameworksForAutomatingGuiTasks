@@ -2,6 +2,8 @@
 
 This repository contains the source code and experimental results for the bachelor thesis titled "Towards Agentic LLM frameworks for automating GUI-Tasks: Comparing a single LLM to an Agentic Architecture" by Frederik Bauer, submitted to the Vienna University of Economics and Business.
 
+A test notebook for automating tasks on your own device can be found here: https://github.com/Fredibau/agenticLlmFrameworksForAutomatingGuiTasks/blob/main/ClientAgenticArchitecture/test/testnotebook.ipynb.
+
 ## Abstract
 
 This thesis investigates whether a hierarchical agent architecture can improve Graphical User Interface (GUI) automation. We compared a manager-worker system, using GPT-4o for high-level planning and the UI-TARS model for low-level execution, against a baseline where UI-TARS operated as a single end-to-end agent. Both systems were evaluated on a set of tasks from the OS-World benchmark, measuring Task Success Rate (TSR) and analyzing failure modes.
