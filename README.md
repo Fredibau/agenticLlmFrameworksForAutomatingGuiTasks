@@ -2,7 +2,9 @@
 
 This repository contains the source code and experimental results for the bachelor thesis titled "Towards Agentic LLM frameworks for automating GUI-Tasks: Comparing a single LLM to an Agentic Architecture" by Frederik Bauer, submitted to the Vienna University of Economics and Business.
 
-A test notebook for automating tasks on your own device can be found here: https://github.com/Fredibau/agenticLlmFrameworksForAutomatingGuiTasks/blob/main/ClientAgenticArchitecture/test/testnotebook.ipynb.
+A test notebook for automating tasks on your own device can be found here: [testnotebook.ipynb](https://github.com/Fredibau/agenticLlmFrameworksForAutomatingGuiTasks/blob/main/ClientAgenticArchitecture/test/testnotebook.ipynb).
+
+For installation and guides, on running the tests conducted in the thesis, visit the [OSWorld GitHub repository](https://github.com/xlang-ai/OSWorld/tree/main).
 
 ## Abstract
 
